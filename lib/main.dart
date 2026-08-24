@@ -346,13 +346,122 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
-        child: SizedBox.expand(
-          child: Image.asset(
-            'lib/Screen2home1.png',
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-          ),
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(16, 10, 16, 32),
+          children: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () => Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => MainApp()),
+                    (_) => false,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.home_work, color: lightBlue, size: 34),
+                      SizedBox(width: 8),
+                      Text('LiveSmart', style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                Spacer(),
+                IconButton(
+                  tooltip: 'Favorites',
+                  icon: Icon(Icons.favorite_border, color: lightBlue, size: 28),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FavoritesScreen())),
+                ),
+                IconButton(
+                  tooltip: 'Notifications',
+                  icon: Icon(Icons.notifications_none, color: lightBlue, size: 29),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NotificationsScreen())),
+                ),
+              ],
+            ),
+            SizedBox(height: 14),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: AspectRatio(
+                aspectRatio: 2.5,
+                child: Image.asset('lib/Screen2homeimage2.png', fit: BoxFit.cover),
+              ),
+            ),
+            SizedBox(height: 18),
+            Text('AI-Powered Property Search', style: TextStyle(fontSize: 16, color: lightBlue, fontWeight: FontWeight.w700)),
+            SizedBox(height: 7),
+            Text('Find your dream home', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+            SizedBox(height: 5),
+            Text('Smart property search across Sri Lanka', style: TextStyle(fontSize: 17, color: Colors.grey[600])),
+            SizedBox(height: 18),
+            TextField(
+              readOnly: true,
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AIChatScreen())),
+              style: TextStyle(fontSize: 17),
+              decoration: InputDecoration(
+                hintText: 'Search by location, landmark, type...',
+                hintStyle: TextStyle(fontSize: 17),
+                prefixIcon: Icon(Icons.search, size: 29),
+                suffixIcon: Icon(Icons.tune, color: lightBlue, size: 28),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: EdgeInsets.symmetric(vertical: 18),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
+              ),
+            ),
+            SizedBox(height: 16),
+            InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AIChatScreen())),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: EdgeInsets.all(19),
+                decoration: BoxDecoration(color: Colors.grey[900], borderRadius: BorderRadius.circular(20)),
+                child: Row(
+                  children: [
+                    CircleAvatar(radius: 27, backgroundColor: lightBlue, child: Icon(Icons.smart_toy, color: Colors.white, size: 29)),
+                    SizedBox(width: 14),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('Ask the AI Assistant', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                      SizedBox(height: 5),
+                      Text('Use text or voice to find a property', style: TextStyle(color: Colors.white70, fontSize: 15)),
+                    ])),
+                    Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 22),
+            Row(children: [
+              categoryItem(context, Icons.home, 'House'),
+              categoryItem(context, Icons.apartment, 'Apartment'),
+              categoryItem(context, Icons.business, 'Commercial'),
+              categoryItem(context, Icons.terrain, 'Land'),
+            ]),
+            SizedBox(height: 26),
+            sectionTitle(context, 'Popular Locations'),
+            SizedBox(height: 12),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(children: ['Colombo 1-15', 'Rajagiriya', 'Galle', 'Kandy', 'Negombo']
+                  .map((location) => Padding(padding: EdgeInsets.only(right: 10), child: chipItem(context, location))).toList()),
+            ),
+            SizedBox(height: 26),
+            sectionTitle(context, 'Featured Properties'),
+            SizedBox(height: 12),
+            SizedBox(
+              height: 440,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: featuredProperties.length,
+                separatorBuilder: (_, __) => SizedBox(width: 14),
+                itemBuilder: (context, index) => GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailScreen(property: featuredProperties[index]))),
+                  child: featuredCard(featuredProperties[index]),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
