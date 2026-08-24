@@ -1060,6 +1060,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
   bool _isListening = false;
   String _lastWords = '';
   List<Map<String, String>> _assistantProperties = [];
+  late final Future<void> _historyReady;
   final List<Map<String, String>> _quickSuggestions = [
     {'text': '3-bedroom house in Colombo under 50 million'},
     {'text': '2-bedroom apartment in Kandy for rent'},
@@ -1077,7 +1078,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSearchHistory();
+    _historyReady = _loadSearchHistory();
     _initSpeech();
     _initTts();
   }
@@ -1086,13 +1087,21 @@ class _AIChatScreenState extends State<AIChatScreen> {
     final preferences = await SharedPreferences.getInstance();
     final storedHistory = preferences.getStringList(_historyKey) ?? [];
     final now = DateTime.now();
-    final freshHistory = storedHistory
-        .map((entry) => jsonDecode(entry) as Map<String, dynamic>)
-        .where((entry) {
-          final timestamp = DateTime.tryParse(entry['timestamp'] as String? ?? '');
-          return timestamp != null && now.difference(timestamp) <= _historyRetention;
-        })
-        .toList();
+    final freshHistory = <Map<String, dynamic>>[];
+    for (final encodedEntry in storedHistory) {
+      try {
+        final decodedEntry = jsonDecode(encodedEntry);
+        if (decodedEntry is! Map) continue;
+        final entry = Map<String, dynamic>.from(decodedEntry);
+        final timestamp = DateTime.tryParse(entry['timestamp'] as String? ?? '');
+        final age = timestamp == null ? null : now.difference(timestamp);
+        if (age != null && age >= Duration.zero && age <= _historyRetention) {
+          freshHistory.add(entry);
+        }
+      } on FormatException {
+        // Ignore invalid legacy entries and retain the valid history.
+      }
+    }
     _searchHistory = freshHistory;
     await preferences.setStringList(
       _historyKey,
@@ -1123,7 +1132,13 @@ class _AIChatScreenState extends State<AIChatScreen> {
   }
 
   void _showSearchHistory() {
-    showModalBottomSheet<void>(
+    _openSearchHistory();
+  }
+
+  Future<void> _openSearchHistory() async {
+    await _historyReady;
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
@@ -1214,13 +1229,14 @@ class _AIChatScreenState extends State<AIChatScreen> {
       _messageController.clear();
     });
 
-    Future.delayed(Duration(milliseconds: 250), () {
+    Future.delayed(Duration(milliseconds: 250), () async {
       final response = _generateResponse(text);
+      if (!mounted) return;
       setState(() {
         _messages.add({'sender': 'assistant', 'text': response['message']!});
         _assistantProperties = response['properties']!;
       });
-      _saveSearchHistory(text, response['message']!);
+      await _saveSearchHistory(text, response['message']!);
       _speak(response['message']!);
     });
   }
