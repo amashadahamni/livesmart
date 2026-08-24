@@ -547,15 +547,17 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            child: propertyImage(item, height: 140, width: double.infinity),
-          ),
-          Expanded(
-            child: Padding(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                child: propertyImage(item, height: 140, width: double.infinity),
+              ),
+              Expanded(
+                child: Padding(
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,8 +590,15 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          )
+                ),
+              )
+            ],
+          ),
+          Positioned(
+            top: 10,
+            right: 10,
+            child: FavoriteButton(property: item),
+          ),
         ],
       ),
     );
@@ -704,18 +713,48 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favorites = PropertyData.all.take(4).toList();
     return Scaffold(
       appBar: AppBar(title: Text('Favorites')),
-      body: ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: favorites.length,
-        itemBuilder: (context, index) => ListTile(
-          leading: Icon(Icons.favorite, color: lightBlue),
-          title: Text(favorites[index]['title']!),
-          subtitle: Text(favorites[index]['city']!),
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailScreen(property: favorites[index]))),
+      body: ValueListenableBuilder<int>(
+        valueListenable: PropertyData.favoritesChanged,
+        builder: (context, _, __) {
+          final favorites = PropertyData.favorites;
+          return favorites.isEmpty
+              ? Center(child: Text('No favorite properties yet'))
+              : ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemCount: favorites.length,
+                  itemBuilder: (context, index) => ListTile(
+                    leading: Icon(Icons.favorite, color: lightBlue),
+                    title: Text(favorites[index]['title']!),
+                    subtitle: Text(favorites[index]['city']!),
+                    trailing: FavoriteButton(property: favorites[index]),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailScreen(property: favorites[index]))),
+                  ),
+                );
+        },
+      ),
+    );
+  }
+}
+
+class FavoriteButton extends StatelessWidget {
+  final Map<String, String> property;
+
+  const FavoriteButton({super.key, required this.property});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: PropertyData.favoritesChanged,
+      builder: (context, _, __) => IconButton(
+        tooltip: PropertyData.isFavorite(property) ? 'Remove favorite' : 'Add favorite',
+        icon: Icon(
+          PropertyData.isFavorite(property) ? Icons.favorite : Icons.favorite_border,
+          color: lightBlue,
+          size: 26,
         ),
+        onPressed: () => PropertyData.toggleFavorite(property),
       ),
     );
   }
@@ -863,9 +902,14 @@ class _PropertyCategoryScreenState extends State<PropertyCategoryScreen> {
                       'Price: ${property['price']}',
                     ),
                     isThreeLine: true,
-                    trailing: property['bedrooms']!.isEmpty
-                        ? null
-                        : Text('${property['bedrooms']} bd\n${property['bathrooms']} ba'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (property['bedrooms']!.isNotEmpty)
+                          Text('${property['bedrooms']} bd\n${property['bathrooms']} ba'),
+                        FavoriteButton(property: property),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -1302,7 +1346,10 @@ class PropertyDetailScreen extends StatelessWidget {
     final propertyTitle = '${property['category']} for ${property['transactionType']} '
         'in ${property['streetName'] ?? property['location']}, ${property['city'] ?? ''}';
     return Scaffold(
-      appBar: AppBar(title: Text(propertyTitle)),
+      appBar: AppBar(
+        title: Text(propertyTitle),
+        actions: [FavoriteButton(property: property)],
+      ),
       body: ListView(
         children: [
           imagePath.startsWith('lib/')

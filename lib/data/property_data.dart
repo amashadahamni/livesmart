@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class PropertyData {
   static const List<String> locations = [
     'Colombo 1-15',
@@ -36,6 +38,24 @@ class PropertyData {
     'Apartment',
     'Commercial',
   ];
+
+  static final Set<String> favoriteIds = <String>{};
+  static final ValueNotifier<int> favoritesChanged = ValueNotifier<int>(0);
+
+  static bool isFavorite(Map<String, String> property) {
+    return favoriteIds.contains(property['id']);
+  }
+
+  static void toggleFavorite(Map<String, String> property) {
+    final id = property['id'];
+    if (id == null) return;
+    if (!favoriteIds.add(id)) favoriteIds.remove(id);
+    favoritesChanged.value++;
+  }
+
+  static List<Map<String, String>> get favorites {
+    return all.where(isFavorite).toList();
+  }
 
   static List<Map<String, String>> get all {
     return [
