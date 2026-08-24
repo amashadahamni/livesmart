@@ -321,9 +321,9 @@ class _MainAppState extends State<MainApp> {
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "AI"),
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: "Chat"),
-          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: "Map"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.message), label: "Messages"),
+          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: "Location"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
@@ -350,6 +350,50 @@ class DashboardScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 12, 16, 0),
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () => Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => MainApp()),
+                      (_) => false,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Row(
+                      children: [
+                        Icon(Icons.home_work, color: lightBlue, size: 30),
+                        SizedBox(width: 8),
+                        Text('LiveSmart', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    tooltip: 'Favorites',
+                    icon: Icon(Icons.favorite_border, color: lightBlue),
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FavoritesScreen())),
+                  ),
+                  IconButton(
+                    tooltip: 'Notifications',
+                    icon: Icon(Icons.notifications_none, color: lightBlue),
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NotificationsScreen())),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: SizedBox(
+                  height: 150,
+                  width: double.infinity,
+                  child: Image.asset('lib/Screen2home1.png', fit: BoxFit.cover, alignment: Alignment.topCenter),
+                ),
+              ),
+            ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
@@ -387,6 +431,8 @@ class DashboardScreen extends StatelessWidget {
                       ],
                     ),
                     child: TextField(
+                      readOnly: true,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AIChatScreen())),
                       decoration: InputDecoration(
                         hintText: 'Search by location, type...',
                         prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
@@ -397,7 +443,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AIChatScreen())),
                     child: Container(
                       width: double.infinity,
                       padding: EdgeInsets.all(18),
@@ -465,11 +511,10 @@ class DashboardScreen extends StatelessWidget {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           )),
-                      Text('See all',
-                          style: TextStyle(
-                            color: lightBlue,
-                            fontWeight: FontWeight.w600,
-                          )),
+                      GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AIChatScreen())),
+                        child: Text('See all', style: TextStyle(color: lightBlue, fontWeight: FontWeight.w600)),
+                      ),
                     ],
                   ),
                 ],
@@ -484,11 +529,11 @@ class DashboardScreen extends StatelessWidget {
                     spacing: 10,
                     runSpacing: 10,
                     children: popularLocations
-                        .map((item) => chipItem(item['name']!))
+                        .map((item) => chipItem(context, item['name']!))
                         .toList(),
                   ),
                   SizedBox(height: 20),
-                  sectionTitle('Featured'),
+                  sectionTitle(context, 'Featured'),
                   SizedBox(height: 14),
                   SizedBox(
                     height: 380,
@@ -498,12 +543,15 @@ class DashboardScreen extends StatelessWidget {
                       separatorBuilder: (_, __) => SizedBox(width: 16),
                       itemBuilder: (context, index) {
                         final item = featuredProperties[index];
-                        return featuredCard(item);
+                        return GestureDetector(
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailScreen(property: item))),
+                          child: featuredCard(item),
+                        );
                       },
                     ),
                   ),
                   SizedBox(height: 24),
-                  sectionTitle('Latest Listings'),
+                  sectionTitle(context, 'Latest Listings'),
                   SizedBox(height: 14),
                   Column(
                     children: latestListings.map((item) => latestCard(item)).toList(),
@@ -555,17 +603,18 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget chipItem(String title) {
-    return Chip(
+  Widget chipItem(BuildContext context, String title) {
+    return ActionChip(
       backgroundColor: Colors.white,
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.08),
       label: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AIChatScreen())),
     );
   }
 
-  Widget sectionTitle(String title) {
+  Widget sectionTitle(BuildContext context, String title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -574,11 +623,10 @@ class DashboardScreen extends StatelessWidget {
               fontSize: 20,
               fontWeight: FontWeight.bold,
             )),
-        Text('See all',
-            style: TextStyle(
-              color: lightBlue,
-              fontWeight: FontWeight.w600,
-            )),
+        GestureDetector(
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AIChatScreen())),
+          child: Text('See all', style: TextStyle(color: lightBlue, fontWeight: FontWeight.w600)),
+        ),
       ],
     );
   }
@@ -748,6 +796,45 @@ Widget iconInfo(IconData icon, String label) {
       Text(label, style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w600)),
     ],
   );
+}
+
+class FavoritesScreen extends StatelessWidget {
+  const FavoritesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final favorites = PropertyData.all.take(4).toList();
+    return Scaffold(
+      appBar: AppBar(title: Text('Favorites')),
+      body: ListView.builder(
+        padding: EdgeInsets.all(16),
+        itemCount: favorites.length,
+        itemBuilder: (context, index) => ListTile(
+          leading: Icon(Icons.favorite, color: lightBlue),
+          title: Text(favorites[index]['title']!),
+          subtitle: Text(favorites[index]['city']!),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailScreen(property: favorites[index]))),
+        ),
+      ),
+    );
+  }
+}
+
+class NotificationsScreen extends StatelessWidget {
+  const NotificationsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Notifications')),
+      body: ListView(
+        children: [
+          ListTile(leading: Icon(Icons.notifications, color: lightBlue), title: Text('New properties available'), subtitle: Text('Fresh listings are ready to explore.')),
+          ListTile(leading: Icon(Icons.location_on, color: lightBlue), title: Text('Search update'), subtitle: Text('Explore properties across Sri Lanka.')),
+        ],
+      ),
+    );
+  }
 }
 
 class PropertyCategoryScreen extends StatefulWidget {
