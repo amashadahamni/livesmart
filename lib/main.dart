@@ -390,7 +390,7 @@ class DashboardScreen extends StatelessWidget {
                 child: SizedBox(
                   height: 150,
                   width: double.infinity,
-                  child: Image.asset('lib/Screen2home1.png', fit: BoxFit.cover, alignment: Alignment.topCenter),
+                  child: Image.asset('lib/Screen2homeimage2.png', fit: BoxFit.cover, alignment: Alignment.topCenter),
                 ),
               ),
             ),
