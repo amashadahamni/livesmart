@@ -314,7 +314,7 @@ class _MainAppState extends State<MainApp> {
             index = i;
           });
         },
-        selectedItemColor: Colors.green,
+        selectedItemColor: Color(0xff102a5c),
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
@@ -355,7 +355,7 @@ class DashboardScreen extends StatelessWidget {
                   Text('AI-Powered Property Search',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.green[800],
+                        color: Color(0xff102a5c),
                         fontWeight: FontWeight.w700,
                       )),
                   SizedBox(height: 12),
@@ -464,7 +464,7 @@ class DashboardScreen extends StatelessWidget {
                           )),
                       Text('See all',
                           style: TextStyle(
-                            color: Colors.green[800],
+                            color: Color(0xff102a5c),
                             fontWeight: FontWeight.w600,
                           )),
                     ],
@@ -542,7 +542,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Icon(icon, color: Colors.green[800], size: 24),
+              child: Icon(icon, color: Color(0xff102a5c), size: 24),
             ),
             SizedBox(height: 8),
             Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
@@ -573,7 +573,7 @@ class DashboardScreen extends StatelessWidget {
             )),
         Text('See all',
             style: TextStyle(
-              color: Colors.green[800],
+              color: Color(0xff102a5c),
               fontWeight: FontWeight.w600,
             )),
       ],
@@ -625,7 +625,7 @@ class DashboardScreen extends StatelessWidget {
                       overflow: TextOverflow.ellipsis),
                   SizedBox(height: 6),
                   Text(item['price']!,
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.green[800])),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xff102a5c))),
                   Spacer(),
                   Row(
                     children: [
@@ -684,7 +684,7 @@ class DashboardScreen extends StatelessWidget {
                   Text(item['title']!,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 6),
-                  Text(item['price']!, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.green[800])),
+                  Text(item['price']!, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xff102a5c))),
                 ],
               ),
             ),
@@ -790,7 +790,7 @@ class _PropertyCategoryScreenState extends State<PropertyCategoryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[800])),
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff102a5c))),
           SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 16)),
         ],
@@ -1133,7 +1133,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                                   BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
                                 ],
                               ),
-                              child: Icon(_isListening ? Icons.mic_off : Icons.mic, color: Colors.green[800]),
+                              child: Icon(_isListening ? Icons.mic_off : Icons.mic, color: Color(0xff102a5c)),
                             ),
                           ),
                           SizedBox(width: 12),
@@ -1183,7 +1183,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                             child: Container(
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.green[800],
+                                color: Color(0xff102a5c),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.send, color: Colors.white),
@@ -1280,7 +1280,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                   SizedBox(height: 6),
                   Text(property['title']!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(height: 6),
-                  Text(property['price']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.green[800])),
+                  Text(property['price']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xff102a5c))),
                   SizedBox(height: 12),
                   Row(
                     children: [
@@ -1326,7 +1326,7 @@ class PropertyDetailScreen extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(property['city'] ?? property['location']!, style: TextStyle(color: Colors.grey[600], fontSize: 15)),
                 SizedBox(height: 12),
-                Text(property['price']!, style: TextStyle(color: Colors.green[800], fontWeight: FontWeight.w700, fontSize: 22)),
+                Text(property['price']!, style: TextStyle(color: Color(0xff102a5c), fontWeight: FontWeight.w700, fontSize: 22)),
                 SizedBox(height: 18),
                 _detailRow('Transaction', property['transactionType'] ?? ''),
                 _detailRow('Area', property['area'] ?? ''),
@@ -1388,7 +1388,7 @@ class PropertyDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[800])),
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff102a5c))),
           SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 16)),
         ],
@@ -1431,7 +1431,7 @@ class MapScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.map, size: 80, color: Colors.green),
+            Icon(Icons.map, size: 80, color: Color(0xff102a5c)),
             SizedBox(height: 10),
             Text("Google Maps will be added here later"),
           ],
