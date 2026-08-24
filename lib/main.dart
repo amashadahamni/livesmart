@@ -64,108 +64,25 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(color: Color(0xff061542)),
-            child: FadeTransition(
-              opacity: _contentAnimation,
-              child: ScaleTransition(
-                scale: _logoAnimation,
-                child: Image.asset(
-                  'lib/Screen1FlashScreen.png',
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+      body: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => LoginScreen()),
+          );
+        },
+        child: SizedBox.expand(
+          child: FadeTransition(
+            opacity: _contentAnimation,
+            child: ScaleTransition(
+              scale: _logoAnimation,
+              child: Image.asset(
+                'lib/Screen1FlashScreen.png',
+                fit: BoxFit.cover,
               ),
             ),
           ),
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Opacity(
-                      opacity: 0,
-                      child: Text('LiveSmart'),
-                    ),
-                    const SizedBox(height: 250),
-                    FadeTransition(
-                      opacity: _contentAnimation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.18),
-                          end: Offset.zero,
-                        ).animate(_contentAnimation),
-                        child: Column(
-                          children: [
-                            Text(
-                              'Smart Choices. Better Living.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-                            Text(
-                              'Find Your Perfect Property',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.82),
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              'For Sale or Rent',
-                              style: TextStyle(
-                                color: Color(0xff7dd9ff),
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 34),
-                            _SplashActionButton(onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => LoginScreen()),
-                              );
-                            }),
-                            const SizedBox(height: 28),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _splashDot(true),
-                                _splashDot(false),
-                                _splashDot(false),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _splashDot(bool active) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      width: active ? 18 : 10,
-      height: 10,
-      decoration: BoxDecoration(
-        color: active ? const Color(0xff7dd9ff) : Colors.white70,
-        borderRadius: BorderRadius.circular(10),
+        ),
       ),
     );
   }

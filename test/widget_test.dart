@@ -15,8 +15,7 @@ void main() {
   testWidgets('LiveSmart app loads smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(LiveSmartApp());
 
-    expect(find.text('LiveSmart'), findsWidgets);
-    expect(find.text('Get Started'), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
   });
 
   test('property dataset contains 420 rows', () {
