@@ -25,46 +25,287 @@ class LiveSmartApp extends StatelessWidget {
 }
 
 // ================= 1. SPLASH SCREEN =================
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+  late final Animation<double> _logoAnimation;
+  late final Animation<double> _contentAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..forward();
+    _logoAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0, 0.65, curve: Curves.elasticOut),
+    );
+    _contentAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.35, 1, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.green, Colors.blue],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xff061542), Color(0xff09265e), Color(0xff0b87c4)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
           ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "LiveSmart",
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          Positioned.fill(
+            child: CustomPaint(painter: _SplashBackdropPainter()),
+          ),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ScaleTransition(
+                      scale: _logoAnimation,
+                      child: const _LiveSmartMark(),
+                    ),
+                    const SizedBox(height: 28),
+                    FadeTransition(
+                      opacity: _contentAnimation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.18),
+                          end: Offset.zero,
+                        ).animate(_contentAnimation),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Smart Choices. Better Living.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              'Find Your Perfect Property',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.82),
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'For Sale or Rent',
+                              style: TextStyle(
+                                color: Color(0xff7dd9ff),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 34),
+                            _SplashActionButton(onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => LoginScreen()),
+                              );
+                            }),
+                            const SizedBox(height: 28),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _splashDot(true),
+                                _splashDot(false),
+                                _splashDot(false),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
-                },
-                child: Text("Get Started"),
-              )
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
+
+  Widget _splashDot(bool active) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      width: active ? 18 : 10,
+      height: 10,
+      decoration: BoxDecoration(
+        color: active ? const Color(0xff7dd9ff) : Colors.white70,
+        borderRadius: BorderRadius.circular(10),
+      ),
+    );
+  }
+}
+
+class _LiveSmartMark extends StatelessWidget {
+  const _LiveSmartMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 132,
+          height: 132,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white, width: 5),
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              const Icon(Icons.home_work_outlined, color: Colors.white, size: 82),
+              Icon(Icons.hub, color: const Color(0xff7dd9ff), size: 47),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'LiveSmart',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 42,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SplashActionButton extends StatefulWidget {
+  final VoidCallback onPressed;
+
+  const _SplashActionButton({required this.onPressed});
+
+  @override
+  State<_SplashActionButton> createState() => _SplashActionButtonState();
+}
+
+class _SplashActionButtonState extends State<_SplashActionButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _shineController;
+
+  @override
+  void initState() {
+    super.initState();
+    _shineController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _shineController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _shineController,
+      builder: (context, child) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xff6ed7ff).withOpacity(0.28),
+                blurRadius: 18,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(32),
+            child: Stack(
+              children: [
+                ElevatedButton(
+                  onPressed: widget.onPressed,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xff10265f),
+                    minimumSize: const Size(240, 62),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Get Started', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      SizedBox(width: 18),
+                      Icon(Icons.arrow_forward_rounded, size: 25),
+                    ],
+                  ),
+                ),
+                Positioned.fill(
+                  left: -100 + (_shineController.value * 340),
+                  child: IgnorePointer(
+                    child: Transform.rotate(
+                      angle: -0.35,
+                      child: Container(width: 45, color: Colors.white.withOpacity(0.32)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SplashBackdropPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final skylinePaint = Paint()..color = const Color(0xff19549c).withOpacity(0.5);
+    final baseY = size.height * 0.83;
+    final widths = [38.0, 58.0, 30.0, 74.0, 44.0, 88.0, 34.0, 62.0];
+    for (var index = 0; index < widths.length; index++) {
+      final width = widths[index];
+      final height = 35.0 + ((index * 29) % 85);
+      final x = size.width * 0.04 + index * size.width * 0.125;
+      canvas.drawRect(Rect.fromLTWH(x, baseY - height, width, height), skylinePaint);
+    }
+    final glowPaint = Paint()..color = const Color(0xff55cfff).withOpacity(0.15);
+    canvas.drawCircle(Offset(size.width * 0.5, baseY - 55), size.width * 0.34, glowPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // ================= 2. LOGIN SCREEN =================
@@ -1147,8 +1388,10 @@ class PropertyDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final imagePath = property['image']!;
     final contactNumber = property['contactNumber'] ?? 'Not shown';
+    final propertyTitle = '${property['category']} for ${property['transactionType']} '
+        'in ${property['streetName'] ?? property['location']}, ${property['city'] ?? ''}';
     return Scaffold(
-      appBar: AppBar(title: Text(property['title']!)),
+      appBar: AppBar(title: Text(propertyTitle)),
       body: ListView(
         children: [
           imagePath.startsWith('lib/')
@@ -1159,7 +1402,7 @@ class PropertyDetailScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(property['title']!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+                Text(propertyTitle, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
                 SizedBox(height: 8),
                 Text(property['city'] ?? property['location']!, style: TextStyle(color: Colors.grey[600], fontSize: 15)),
                 SizedBox(height: 12),
