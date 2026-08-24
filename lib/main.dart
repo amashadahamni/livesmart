@@ -1210,20 +1210,25 @@ class _AIChatScreenState extends State<AIChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.grey[50],
       body: SafeArea(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: EdgeInsets.fromLTRB(18, 14, 18, 12),
+              child: Row(
                 children: [
-                  Text('AI Property Assistant',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                  SizedBox(height: 6),
-                  Text('Ask in plain English or Sinhala',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                  IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.arrow_back, size: 28)),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text('LiveSmartAI', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: lightBlue)),
+                        Text('Your AI Property Assistant', style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+                      ],
+                    ),
+                  ),
+                  IconButton(tooltip: 'Search history', onPressed: () {}, icon: Icon(Icons.history, size: 27)),
+                  IconButton(tooltip: 'More options', onPressed: () {}, icon: Icon(Icons.more_horiz, size: 28)),
                 ],
               ),
             ),
@@ -1231,30 +1236,45 @@ class _AIChatScreenState extends State<AIChatScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
                 ),
                 child: Column(
                   children: [
                     Expanded(
                       child: ListView(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        padding: EdgeInsets.fromLTRB(18, 22, 18, 18),
                         children: [
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: _quickSuggestions.map((suggestion) {
-                              return ActionChip(
-                                label: Text(suggestion['text']!),
-                                backgroundColor: paleBlue,
-                                onPressed: () => _sendMessage(suggestion['text']!),
-                              );
-                            }).toList(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(children: [Icon(Icons.auto_awesome, color: lightBlue), SizedBox(width: 8), Text('Try asking me', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold))]),
+                              TextButton.icon(onPressed: () => setState(() { _messages.removeWhere((message) => message['sender'] == 'user'); _assistantProperties = []; }), icon: Icon(Icons.refresh, color: lightBlue), label: Text('Refresh', style: TextStyle(color: lightBlue))),
+                            ],
                           ),
-                          SizedBox(height: 20),
-                          ..._messages.map((message) => _buildMessageBubble(message)),
+                          SizedBox(height: 8),
+                          GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                            childAspectRatio: 2.8,
+                            children: _quickSuggestions.map((suggestion) => InkWell(
+                              onTap: () => _sendMessage(suggestion['text']!),
+                              borderRadius: BorderRadius.circular(18),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(color: Color(0xfff4f7fd), borderRadius: BorderRadius.circular(18)),
+                                child: Row(children: [Icon(Icons.home_outlined, color: lightBlue, size: 23), SizedBox(width: 8), Expanded(child: Text(suggestion['text']!, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12.5))) ]),
+                              ),
+                            )).toList(),
+                          ),
+                          SizedBox(height: 24),
+                          _buildMessageBubble(_messages.first),
+                          if (_messages.length > 1) ..._messages.skip(1).map(_buildMessageBubble),
                           if (_assistantProperties.isNotEmpty) ...[
-                            SizedBox(height: 10),
-                            Text('Tap a property to view details', style: TextStyle(color: Colors.grey[700])),
+                            SizedBox(height: 12),
+                            Row(children: [Icon(Icons.inventory_2_outlined, color: lightBlue), SizedBox(width: 8), Text('${_assistantProperties.length} Properties found', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)), Spacer(), Text('View all', style: TextStyle(color: lightBlue, fontWeight: FontWeight.bold))]),
                             SizedBox(height: 12),
                             ..._assistantProperties.map((property) => _propertyCard(property)),
                           ],
@@ -1262,9 +1282,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.fromLTRB(16, 12, 16, 16),
+                      padding: EdgeInsets.fromLTRB(14, 12, 14, 16),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: Colors.grey[50],
                         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                       ),
                       child: Row(
@@ -1280,7 +1300,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                                   BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
                                 ],
                               ),
-                              child: Icon(_isListening ? Icons.mic_off : Icons.mic, color: lightBlue),
+                              child: Icon(_isListening ? Icons.mic_off : Icons.mic, color: lightBlue, size: 27),
                             ),
                           ),
                           SizedBox(width: 12),
@@ -1296,7 +1316,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
                                     child: TextField(
                                       controller: _messageController,
                                       decoration: InputDecoration(
-                                        hintText: 'Type your requirements...',
+                                        hintText: 'Type your property request...',
+                                        hintStyle: TextStyle(fontSize: 15),
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.symmetric(horizontal: 16),
                                       ),
@@ -1333,7 +1354,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                                 color: lightBlue,
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.send, color: Colors.white),
+                              child: Icon(Icons.send_rounded, color: Colors.white, size: 25),
                             ),
                           ),
                         ],
