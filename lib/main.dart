@@ -4,6 +4,9 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:url_launcher/url_launcher.dart';
 import 'data/property_data.dart';
 
+const lightBlue = Color(0xff3d8df5);
+const paleBlue = Color(0xffe4efff);
+
 void main() {
   runApp(LiveSmartApp());
 }
@@ -16,7 +19,7 @@ class LiveSmartApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'LiveSmart',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.blue,
         fontFamily: 'Arial',
       ),
       home: SplashScreen(),
@@ -106,7 +109,7 @@ class _LiveSmartMark extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               const Icon(Icons.home_work_outlined, color: Colors.white, size: 82),
-              Icon(Icons.hub, color: const Color(0xff7dd9ff), size: 47),
+              Icon(Icons.hub, color: lightBlue, size: 47),
             ],
           ),
         ),
@@ -163,7 +166,7 @@ class _SplashActionButtonState extends State<_SplashActionButton>
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xff6ed7ff).withOpacity(0.28),
+                color: lightBlue.withOpacity(0.28),
                 blurRadius: 18,
                 spreadRadius: 2,
               ),
@@ -177,7 +180,7 @@ class _SplashActionButtonState extends State<_SplashActionButton>
                   onPressed: widget.onPressed,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xff10265f),
+                    foregroundColor: lightBlue,
                     minimumSize: const Size(240, 62),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
                   ),
@@ -211,7 +214,7 @@ class _SplashActionButtonState extends State<_SplashActionButton>
 class _SplashBackdropPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final skylinePaint = Paint()..color = const Color(0xff19549c).withOpacity(0.5);
+    final skylinePaint = Paint()..color = lightBlue.withOpacity(0.5);
     final baseY = size.height * 0.83;
     final widths = [38.0, 58.0, 30.0, 74.0, 44.0, 88.0, 34.0, 62.0];
     for (var index = 0; index < widths.length; index++) {
@@ -314,7 +317,7 @@ class _MainAppState extends State<MainApp> {
             index = i;
           });
         },
-        selectedItemColor: Color(0xff102a5c),
+        selectedItemColor: lightBlue,
         unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
@@ -355,7 +358,7 @@ class DashboardScreen extends StatelessWidget {
                   Text('AI-Powered Property Search',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xff102a5c),
+                        color: lightBlue,
                         fontWeight: FontWeight.w700,
                       )),
                   SizedBox(height: 12),
@@ -414,7 +417,7 @@ class DashboardScreen extends StatelessWidget {
                           Container(
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.green,
+                              color: lightBlue,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.star, color: Colors.white),
@@ -464,7 +467,7 @@ class DashboardScreen extends StatelessWidget {
                           )),
                       Text('See all',
                           style: TextStyle(
-                            color: Color(0xff102a5c),
+                            color: lightBlue,
                             fontWeight: FontWeight.w600,
                           )),
                     ],
@@ -542,7 +545,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Icon(icon, color: Color(0xff102a5c), size: 24),
+              child: Icon(icon, color: lightBlue, size: 24),
             ),
             SizedBox(height: 8),
             Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
@@ -573,7 +576,7 @@ class DashboardScreen extends StatelessWidget {
             )),
         Text('See all',
             style: TextStyle(
-              color: Color(0xff102a5c),
+              color: lightBlue,
               fontWeight: FontWeight.w600,
             )),
       ],
@@ -610,7 +613,7 @@ class DashboardScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      badge(item['tag']!, Colors.green[100]!),
+                      badge(item['tag']!, paleBlue),
                       SizedBox(width: 8),
                       if (item['label'] != null)
                         badge(item['label']!, Colors.orange[100]!),
@@ -625,7 +628,7 @@ class DashboardScreen extends StatelessWidget {
                       overflow: TextOverflow.ellipsis),
                   SizedBox(height: 6),
                   Text(item['price']!,
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xff102a5c))),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: lightBlue)),
                   Spacer(),
                   Row(
                     children: [
@@ -671,7 +674,7 @@ class DashboardScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      badge(item['tag']!, Colors.green[100]!),
+                      badge(item['tag']!, paleBlue),
                       if (item['label'] != null) ...[
                         SizedBox(width: 8),
                         badge(item['label']!, Colors.orange[100]!),
@@ -684,7 +687,7 @@ class DashboardScreen extends StatelessWidget {
                   Text(item['title']!,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 6),
-                  Text(item['price']!, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xff102a5c))),
+                  Text(item['price']!, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: lightBlue)),
                 ],
               ),
             ),
@@ -790,7 +793,7 @@ class _PropertyCategoryScreenState extends State<PropertyCategoryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff102a5c))),
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: lightBlue)),
           SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 16)),
         ],
@@ -1098,7 +1101,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                             children: _quickSuggestions.map((suggestion) {
                               return ActionChip(
                                 label: Text(suggestion['text']!),
-                                backgroundColor: Colors.green[50],
+                                backgroundColor: paleBlue,
                                 onPressed: () => _sendMessage(suggestion['text']!),
                               );
                             }).toList(),
@@ -1133,7 +1136,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                                   BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
                                 ],
                               ),
-                              child: Icon(_isListening ? Icons.mic_off : Icons.mic, color: Color(0xff102a5c)),
+                              child: Icon(_isListening ? Icons.mic_off : Icons.mic, color: lightBlue),
                             ),
                           ),
                           SizedBox(width: 12),
@@ -1183,7 +1186,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                             child: Container(
                               padding: EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Color(0xff102a5c),
+                                color: lightBlue,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.send, color: Colors.white),
@@ -1215,14 +1218,14 @@ class _AIChatScreenState extends State<AIChatScreen> {
               margin: EdgeInsets.only(right: 12, top: 6),
               width: 40,
               height: 40,
-              decoration: BoxDecoration(color: Colors.green[800], shape: BoxShape.circle),
+              decoration: BoxDecoration(color: lightBlue, shape: BoxShape.circle),
               child: Icon(Icons.star, color: Colors.white, size: 20),
             ),
           Flexible(
             child: Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isUser ? Colors.green[800] : Colors.grey[200],
+                color: isUser ? lightBlue : Colors.grey[200],
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -1236,7 +1239,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
               margin: EdgeInsets.only(left: 12, top: 6),
               width: 40,
               height: 40,
-              decoration: BoxDecoration(color: Colors.green[800], shape: BoxShape.circle),
+              decoration: BoxDecoration(color: lightBlue, shape: BoxShape.circle),
               child: Icon(Icons.person, color: Colors.white, size: 20),
             ),
         ],
@@ -1271,7 +1274,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _badge(property['tag']!, Colors.green[100]!),
+                      _badge(property['tag']!, paleBlue),
                       Icon(Icons.favorite_border, color: Colors.grey[600]),
                     ],
                   ),
@@ -1280,7 +1283,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                   SizedBox(height: 6),
                   Text(property['title']!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(height: 6),
-                  Text(property['price']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xff102a5c))),
+                  Text(property['price']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: lightBlue)),
                   SizedBox(height: 12),
                   Row(
                     children: [
@@ -1326,7 +1329,7 @@ class PropertyDetailScreen extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(property['city'] ?? property['location']!, style: TextStyle(color: Colors.grey[600], fontSize: 15)),
                 SizedBox(height: 12),
-                Text(property['price']!, style: TextStyle(color: Color(0xff102a5c), fontWeight: FontWeight.w700, fontSize: 22)),
+                Text(property['price']!, style: TextStyle(color: lightBlue, fontWeight: FontWeight.w700, fontSize: 22)),
                 SizedBox(height: 18),
                 _detailRow('Transaction', property['transactionType'] ?? ''),
                 _detailRow('Area', property['area'] ?? ''),
@@ -1345,7 +1348,7 @@ class PropertyDetailScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => _showContactDialog(context, contactNumber),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[800],
+                    backgroundColor: lightBlue,
                     foregroundColor: Colors.white,
                     minimumSize: Size(double.infinity, 50),
                   ),
@@ -1388,7 +1391,7 @@ class PropertyDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff102a5c))),
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: lightBlue)),
           SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 16)),
         ],
@@ -1431,7 +1434,7 @@ class MapScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.map, size: 80, color: Color(0xff102a5c)),
+            Icon(Icons.map, size: 80, color: lightBlue),
             SizedBox(height: 10),
             Text("Google Maps will be added here later"),
           ],
