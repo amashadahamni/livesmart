@@ -67,16 +67,19 @@ class _SplashScreenState extends State<SplashScreen>
       body: Stack(
         children: [
           Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xff061542), Color(0xff09265e), Color(0xff0b87c4)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+            decoration: const BoxDecoration(color: Color(0xff061542)),
+            child: FadeTransition(
+              opacity: _contentAnimation,
+              child: ScaleTransition(
+                scale: _logoAnimation,
+                child: Image.asset(
+                  'lib/Screen1FlashScreen.png',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Positioned.fill(
-            child: CustomPaint(painter: _SplashBackdropPainter()),
           ),
           SafeArea(
             child: Center(
@@ -85,11 +88,11 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ScaleTransition(
-                      scale: _logoAnimation,
-                      child: const _LiveSmartMark(),
+                    const Opacity(
+                      opacity: 0,
+                      child: Text('LiveSmart'),
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 250),
                     FadeTransition(
                       opacity: _contentAnimation,
                       child: SlideTransition(
