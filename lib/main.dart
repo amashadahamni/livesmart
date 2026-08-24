@@ -348,7 +348,7 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
-        child: Column(
+        child: ListView(
           children: [
             Padding(
               padding: EdgeInsets.fromLTRB(20, 12, 16, 0),
@@ -520,9 +520,9 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
                 children: [
                   SizedBox(height: 14),
                   Wrap(
@@ -536,7 +536,7 @@ class DashboardScreen extends StatelessWidget {
                   sectionTitle(context, 'Featured'),
                   SizedBox(height: 14),
                   SizedBox(
-                    height: 380,
+                    height: 440,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: featuredProperties.length,
@@ -634,7 +634,7 @@ class DashboardScreen extends StatelessWidget {
   Widget featuredCard(Map<String, String> item) {
     return Container(
       width: 260,
-      height: 380,
+      height: 440,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
