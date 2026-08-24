@@ -1192,7 +1192,15 @@ class _AIChatScreenState extends State<AIChatScreen> {
   }
 
   Future<void> _initSpeech() async {
-    await _speech.initialize();
+    await _speech.initialize(
+      onError: (error) {
+        if (!mounted) return;
+        setState(() => _isListening = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Voice search error: ${error.errorMsg}')),
+        );
+      },
+    );
   }
 
   Future<void> _initTts() async {
@@ -1200,22 +1208,54 @@ class _AIChatScreenState extends State<AIChatScreen> {
     await _flutterTts.setSpeechRate(0.45);
   }
 
-  void _startListening() async {
-    bool available = await _speech.initialize();
-    if (available) {
-      setState(() => _isListening = true);
-      _speech.listen(onResult: (result) {
-        setState(() {
-          _lastWords = result.recognizedWords;
-          _messageController.text = _lastWords;
-        });
-      });
+  Future<void> _startListening() async {
+    if (_isListening) return;
+    final available = await _speech.initialize(
+      onError: (error) {
+        if (!mounted) return;
+        setState(() => _isListening = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Voice search error: ${error.errorMsg}')),
+        );
+      },
+    );
+    if (!available || !mounted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Microphone permission is required for voice search.')),
+        );
+      }
+      return;
     }
+
+    setState(() {
+      _isListening = true;
+      _lastWords = '';
+    });
+    await _speech.listen(
+      listenFor: const Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 3),
+      partialResults: true,
+      localeId: 'en_US',
+      onResult: (result) {
+        if (!mounted) return;
+        final transcript = result.recognizedWords.trim();
+        setState(() {
+          _lastWords = transcript;
+          _messageController.text = transcript;
+          _messageController.selection = TextSelection.collapsed(offset: transcript.length);
+        });
+        if (result.finalResult && transcript.isNotEmpty) {
+          setState(() => _isListening = false);
+          _sendMessage(transcript);
+        }
+      },
+    );
   }
 
-  void _stopListening() async {
+  Future<void> _stopListening() async {
     await _speech.stop();
-    setState(() => _isListening = false);
+    if (mounted) setState(() => _isListening = false);
   }
 
   void _speak(String text) {
