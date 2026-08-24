@@ -708,31 +708,143 @@ Widget iconInfo(IconData icon, String label) {
   );
 }
 
-class FavoritesScreen extends StatelessWidget {
+class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
+
+  @override
+  State<FavoritesScreen> createState() => _FavoritesScreenState();
+}
+
+class _FavoritesScreenState extends State<FavoritesScreen> {
+  int selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Favorites')),
-      body: ValueListenableBuilder<int>(
-        valueListenable: PropertyData.favoritesChanged,
-        builder: (context, _, __) {
-          final favorites = PropertyData.favorites;
-          return favorites.isEmpty
-              ? Center(child: Text('No favorite properties yet'))
-              : ListView.builder(
-                  padding: EdgeInsets.all(16),
-                  itemCount: favorites.length,
-                  itemBuilder: (context, index) => ListTile(
-                    leading: Icon(Icons.favorite, color: lightBlue),
-                    title: Text(favorites[index]['title']!),
-                    subtitle: Text(favorites[index]['city']!),
-                    trailing: FavoriteButton(property: favorites[index]),
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailScreen(property: favorites[index]))),
+      backgroundColor: Colors.grey[50],
+      body: SafeArea(
+        child: ValueListenableBuilder<int>(
+          valueListenable: PropertyData.favoritesChanged,
+          builder: (context, _, __) {
+            final allFavorites = PropertyData.favorites;
+            final saleFavorites = allFavorites.where((property) => property['transactionType'] == 'Buy').toList();
+            final rentFavorites = allFavorites.where((property) => property['transactionType'] == 'Rent').toList();
+            final favorites = selectedTab == 1 ? saleFavorites : selectedTab == 2 ? rentFavorites : allFavorites;
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: _header(context, allFavorites.length)),
+                SliverToBoxAdapter(child: _tabs(allFavorites.length, saleFavorites.length, rentFavorites.length)),
+                if (favorites.isEmpty)
+                  SliverFillRemaining(hasScrollBody: false, child: Center(child: Text('No favorite properties yet', style: TextStyle(fontSize: 17))))
+                else
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16, 18, 16, 28),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => _favoriteCard(context, favorites[index]),
+                        childCount: favorites.length,
+                      ),
+                    ),
                   ),
-                );
-        },
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _header(BuildContext context, int count) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 16, 20, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(Icons.home_work, color: lightBlue, size: 31),
+            SizedBox(width: 8),
+            Text('LiveSmart', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Spacer(),
+            Icon(Icons.notifications_none, color: lightBlue, size: 28),
+          ]),
+          SizedBox(height: 28),
+          Text('Favorites', style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold)),
+          SizedBox(height: 4),
+          Text('$count properties you saved', style: TextStyle(fontSize: 17, color: Colors.grey[600])),
+        ],
+      ),
+    );
+  }
+
+  Widget _tabs(int allCount, int saleCount, int rentCount) {
+    final labels = ['All ($allCount)', 'For Sale ($saleCount)', 'For Rent ($rentCount)'];
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          for (var index = 0; index < labels.length; index++)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => selectedTab = index),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  decoration: BoxDecoration(
+                    color: selectedTab == index ? lightBlue : Colors.white,
+                    borderRadius: BorderRadius.horizontal(
+                      left: index == 0 ? Radius.circular(14) : Radius.zero,
+                      right: index == labels.length - 1 ? Radius.circular(14) : Radius.zero,
+                    ),
+                    border: Border.all(color: lightBlue.withOpacity(0.18)),
+                  ),
+                  child: Text(labels[index], textAlign: TextAlign.center, style: TextStyle(color: selectedTab == index ? Colors.white : Colors.grey[700], fontWeight: FontWeight.w700, fontSize: 14)),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _favoriteCard(BuildContext context, Map<String, String> property) {
+    final imagePath = property['image']!;
+    final image = imagePath.startsWith('lib/')
+        ? Image.asset(imagePath, fit: BoxFit.cover)
+        : Image.network(imagePath, fit: BoxFit.cover);
+    return GestureDetector(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailScreen(property: property))),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 14),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 14, offset: Offset(0, 5))]),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: 132, height: 178, child: image),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(14, 14, 8, 12),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [
+                    Expanded(child: Text(property['label'] ?? 'Property', style: TextStyle(color: lightBlue, fontWeight: FontWeight.bold, fontSize: 12))),
+                    FavoriteButton(property: property),
+                  ]),
+                  SizedBox(height: 4),
+                  Text(property['title']!, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 5),
+                  Text(property['city']!, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                  SizedBox(height: 10),
+                  Text(property['price']!, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: lightBlue, fontSize: 16, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 9),
+                  Row(children: [
+                    iconInfo(Icons.bed, property['beds'] ?? '0'),
+                    SizedBox(width: 10),
+                    iconInfo(Icons.bathtub, property['baths'] ?? '0'),
+                  ]),
+                ]),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
