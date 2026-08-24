@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:url_launcher/url_launcher.dart';
 import 'data/property_data.dart';
@@ -1050,6 +1052,8 @@ class AIChatScreen extends StatefulWidget {
 }
 
 class _AIChatScreenState extends State<AIChatScreen> {
+  static const _historyKey = 'livesmart_ai_search_history';
+  static const _historyRetention = Duration(hours: 72);
   final TextEditingController _messageController = TextEditingController();
   final stt.SpeechToText _speech = stt.SpeechToText();
   final FlutterTts _flutterTts = FlutterTts();
@@ -1068,12 +1072,108 @@ class _AIChatScreenState extends State<AIChatScreen> {
       'text': 'Hi! I\'m your LiveSmart AI assistant. Tell me what you\'re looking for — for example, "a 3-bedroom house in Colombo under 50 million rupees."'
     }
   ];
+  List<Map<String, dynamic>> _searchHistory = [];
 
   @override
   void initState() {
     super.initState();
+    _loadSearchHistory();
     _initSpeech();
     _initTts();
+  }
+
+  Future<void> _loadSearchHistory() async {
+    final preferences = await SharedPreferences.getInstance();
+    final storedHistory = preferences.getStringList(_historyKey) ?? [];
+    final now = DateTime.now();
+    final freshHistory = storedHistory
+        .map((entry) => jsonDecode(entry) as Map<String, dynamic>)
+        .where((entry) {
+          final timestamp = DateTime.tryParse(entry['timestamp'] as String? ?? '');
+          return timestamp != null && now.difference(timestamp) <= _historyRetention;
+        })
+        .toList();
+    _searchHistory = freshHistory;
+    await preferences.setStringList(
+      _historyKey,
+      freshHistory.map(jsonEncode).toList(),
+    );
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _saveSearchHistory(String question, String answer) async {
+    final now = DateTime.now();
+    _searchHistory = [
+      {
+        'timestamp': now.toIso8601String(),
+        'question': question,
+        'answer': answer,
+      },
+      ..._searchHistory,
+    ].where((entry) {
+      final timestamp = DateTime.tryParse(entry['timestamp'] as String? ?? '');
+      return timestamp != null && now.difference(timestamp) <= _historyRetention;
+    }).toList();
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setStringList(
+      _historyKey,
+      _searchHistory.map(jsonEncode).toList(),
+    );
+    if (mounted) setState(() {});
+  }
+
+  void _showSearchHistory() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.72,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20, 18, 20, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Icon(Icons.history, color: lightBlue),
+                  SizedBox(width: 10),
+                  Text('Search history', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  Spacer(),
+                  Text('Last 72 hours', style: TextStyle(color: lightBlue, fontWeight: FontWeight.w600)),
+                ]),
+                SizedBox(height: 6),
+                Text('Your questions and LiveSmartAI answers', style: TextStyle(color: Colors.grey[600])),
+                SizedBox(height: 16),
+                Expanded(
+                  child: _searchHistory.isEmpty
+                      ? Center(child: Text('No searches in the last 72 hours'))
+                      : ListView.separated(
+                          itemCount: _searchHistory.length,
+                          separatorBuilder: (_, __) => Divider(height: 24),
+                          itemBuilder: (context, index) {
+                            final entry = _searchHistory[index];
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('You', style: TextStyle(color: lightBlue, fontWeight: FontWeight.bold)),
+                                SizedBox(height: 4),
+                                Text(entry['question'] as String, style: TextStyle(fontSize: 16)),
+                                SizedBox(height: 10),
+                                Text('LiveSmartAI', style: TextStyle(color: lightBlue, fontWeight: FontWeight.bold)),
+                                SizedBox(height: 4),
+                                Text(entry['answer'] as String, style: TextStyle(fontSize: 15, color: Colors.grey[700])),
+                              ],
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _initSpeech() async {
@@ -1120,6 +1220,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
         _messages.add({'sender': 'assistant', 'text': response['message']!});
         _assistantProperties = response['properties']!;
       });
+      _saveSearchHistory(text, response['message']!);
       _speak(response['message']!);
     });
   }
@@ -1227,7 +1328,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                       ],
                     ),
                   ),
-                  IconButton(tooltip: 'Search history', onPressed: () {}, icon: Icon(Icons.history, size: 27)),
+                  IconButton(tooltip: 'Search history', onPressed: _showSearchHistory, icon: Icon(Icons.history, size: 27)),
                   IconButton(tooltip: 'More options', onPressed: () {}, icon: Icon(Icons.more_horiz, size: 28)),
                 ],
               ),
