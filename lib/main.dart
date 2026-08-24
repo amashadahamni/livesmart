@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:url_launcher/url_launcher.dart';
+import 'data/property_data.dart';
 
 void main() {
   runApp(LiveSmartApp());
@@ -168,51 +170,14 @@ class _MainAppState extends State<MainApp> {
 // ================= 3. DASHBOARD (PROPERTIES) =================
 class DashboardScreen extends StatelessWidget {
   final List<Map<String, String>> popularLocations = [
-    {'name': 'Colombo 03'},
-    {'name': 'Kadawatha'},
-    {'name': 'Weligama'},
+    {'name': 'Colombo 1-15'},
+    {'name': 'Rajagiriya'},
+    {'name': 'Galle'},
   ];
 
-  final List<Map<String, String>> featuredProperties = [
-    {
-      'tag': 'Villa',
-      'label': 'For Rent',
-      'location': 'Dondra, Matara',
-      'title': 'Luxury Villa in Dondra',
-      'price': 'LKR 84,000/mo',
-      'image': 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
-      'beds': '5',
-      'baths': '1',
-    },
-    {
-      'tag': 'House',
-      'label': 'For Sale',
-      'location': 'Kadawatha, Gampaha',
-      'title': 'Modern Family Home',
-      'price': 'LKR 141,000,000',
-      'image': 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=800&q=80',
-      'beds': '4',
-      'baths': '2',
-    },
-  ];
+  final List<Map<String, String>> featuredProperties = PropertyData.all.take(2).toList();
 
-  final List<Map<String, String>> latestListings = [
-    {
-      'tag': 'House',
-      'location': 'Colombo 03, Colombo',
-      'title': 'Two-Storey House',
-      'price': 'LKR 69,000,000',
-      'image': 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      'tag': 'Land',
-      'label': 'For Rent',
-      'location': 'Kadawatha, Gampaha',
-      'title': 'Coconut Land in Gampaha',
-      'price': 'LKR 418,000/mo',
-      'image': 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
+  final List<Map<String, String>> latestListings = PropertyData.all.skip(2).take(2).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -321,10 +286,10 @@ class DashboardScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      categoryItem(Icons.home, 'House'),
-                      categoryItem(Icons.apartment, 'Apartment'),
-                      categoryItem(Icons.stars, 'Villa'),
-                      categoryItem(Icons.terrain, 'Land'),
+                      categoryItem(context, Icons.home, 'House'),
+                      categoryItem(context, Icons.apartment, 'Apartment'),
+                      categoryItem(context, Icons.business, 'Commercial'),
+                      categoryItem(context, Icons.terrain, 'Land'),
                     ],
                   ),
                   SizedBox(height: 24),
@@ -362,7 +327,7 @@ class DashboardScreen extends StatelessWidget {
                   sectionTitle('Featured'),
                   SizedBox(height: 14),
                   SizedBox(
-                    height: 280,
+                    height: 380,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: featuredProperties.length,
@@ -389,28 +354,39 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget categoryItem(IconData icon, String title) {
+  Widget categoryItem(BuildContext context, IconData icon, String title) {
     return Expanded(
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 18,
-                  offset: Offset(0, 10),
-                ),
-              ],
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PropertyCategoryScreen(category: title),
             ),
-            child: Icon(icon, color: Colors.green[800], size: 24),
-          ),
-          SizedBox(height: 8),
-          Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-        ],
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 18,
+                    offset: Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: Colors.green[800], size: 24),
+            ),
+            SizedBox(height: 8),
+            Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ],
+        ),
       ),
     );
   }
@@ -446,7 +422,7 @@ class DashboardScreen extends StatelessWidget {
   Widget featuredCard(Map<String, String> item) {
     return Container(
       width: 260,
-      height: 280,
+      height: 380,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -463,12 +439,7 @@ class DashboardScreen extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            child: Image.network(
-              item['image']!,
-              height: 140,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+            child: propertyImage(item, height: 140, width: double.infinity),
           ),
           Expanded(
             child: Padding(
@@ -529,12 +500,7 @@ class DashboardScreen extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.horizontal(left: Radius.circular(22)),
-            child: Image.network(
-              item['image']!,
-              height: 110,
-              width: 120,
-              fit: BoxFit.cover,
-            ),
+            child: propertyImage(item, height: 150, width: 120),
           ),
           Expanded(
             child: Padding(
@@ -579,6 +545,14 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
+  Widget propertyImage(Map<String, String> item, {required double height, required double width}) {
+    final imagePath = item['image']!;
+    if (imagePath.startsWith('lib/')) {
+      return Image.asset(imagePath, height: height, width: width, fit: BoxFit.cover);
+    }
+    return Image.network(imagePath, height: height, width: width, fit: BoxFit.cover);
+  }
+
   Widget iconInfo(IconData icon, String label) {
     return Row(
       children: [
@@ -610,6 +584,153 @@ Widget iconInfo(IconData icon, String label) {
       Text(label, style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w600)),
     ],
   );
+}
+
+class PropertyCategoryScreen extends StatefulWidget {
+  final String category;
+
+  const PropertyCategoryScreen({super.key, required this.category});
+
+  @override
+  State<PropertyCategoryScreen> createState() => _PropertyCategoryScreenState();
+}
+
+class _PropertyCategoryScreenState extends State<PropertyCategoryScreen> {
+  final searchController = TextEditingController();
+  late List<Map<String, String>> filteredProperties;
+
+  @override
+  void initState() {
+    super.initState();
+    _filterProperties('');
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterProperties(String query) {
+    final normalizedQuery = query.trim().toLowerCase();
+    setState(() {
+      filteredProperties = PropertyData.all.where((property) {
+        final matchesCategory = property['category'] == widget.category;
+        final location = property['city']!.toLowerCase();
+        return matchesCategory &&
+            (normalizedQuery.isEmpty || location.contains(normalizedQuery));
+      }).toList();
+    });
+  }
+
+  Widget detailRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[800])),
+          SizedBox(height: 4),
+          Text(value, style: TextStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('${widget.category} properties')),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: TextField(
+              controller: searchController,
+              onChanged: _filterProperties,
+              decoration: InputDecoration(
+                hintText: 'Search city or town',
+                prefixIcon: Icon(Icons.search),
+                suffixIcon: searchController.text.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: () {
+                          searchController.clear();
+                          _filterProperties('');
+                        },
+                      ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${filteredProperties.length} properties',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
+              itemCount: filteredProperties.length,
+              itemBuilder: (context, index) {
+                final property = filteredProperties[index];
+                final title = property['title']!;
+                final city = property['city']!;
+                final displayTitle = title.endsWith(city) ? title : '$title, $city';
+                return Card(
+                  margin: EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PropertyDetailScreen(property: property),
+                        ),
+                      );
+                    },
+                    leading: SizedBox(
+                      width: 64,
+                      height: 64,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: _resultImage(property),
+                      ),
+                    ),
+                    title: Text(displayTitle),
+                    subtitle: Text(
+                      '${property['transactionType']} | $city\n'
+                      'Area: ${property['area']}\n'
+                      'Price: ${property['price']}',
+                    ),
+                    isThreeLine: true,
+                    trailing: property['bedrooms']!.isEmpty
+                        ? null
+                        : Text('${property['bedrooms']} bd\n${property['bathrooms']} ba'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _resultImage(Map<String, String> property) {
+    final imagePath = property['image']!;
+    if (imagePath.startsWith('lib/')) {
+      return Image.asset(imagePath, fit: BoxFit.cover);
+    }
+    return Image.network(imagePath, fit: BoxFit.cover);
+  }
 }
 
 // ================= 4. AI CHAT SCREEN =================
@@ -1024,11 +1145,15 @@ class PropertyDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imagePath = property['image']!;
+    final contactNumber = property['contactNumber'] ?? 'Not shown';
     return Scaffold(
       appBar: AppBar(title: Text(property['title']!)),
       body: ListView(
         children: [
-          Image.network(property['image']!, height: 260, width: double.infinity, fit: BoxFit.cover),
+          imagePath.startsWith('lib/')
+              ? Image.asset(imagePath, height: 300, width: double.infinity, fit: BoxFit.cover)
+              : Image.network(imagePath, height: 300, width: double.infinity, fit: BoxFit.cover),
           Padding(
             padding: EdgeInsets.all(20),
             child: Column(
@@ -1036,10 +1161,14 @@ class PropertyDetailScreen extends StatelessWidget {
               children: [
                 Text(property['title']!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
                 SizedBox(height: 8),
-                Text(property['location']!, style: TextStyle(color: Colors.grey[600], fontSize: 15)),
+                Text(property['city'] ?? property['location']!, style: TextStyle(color: Colors.grey[600], fontSize: 15)),
                 SizedBox(height: 12),
                 Text(property['price']!, style: TextStyle(color: Colors.green[800], fontWeight: FontWeight.w700, fontSize: 22)),
                 SizedBox(height: 18),
+                _detailRow('Transaction', property['transactionType'] ?? ''),
+                _detailRow('Area', property['area'] ?? ''),
+                _detailRow('Location', property['exactLocation'] ?? property['location'] ?? ''),
+                _detailRow('Special Features', property['specialFeatures'] ?? ''),
                 Row(
                   children: [
                     iconInfo(Icons.bed, property['beds'] ?? '0'),
@@ -1048,18 +1177,57 @@ class PropertyDetailScreen extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 18),
-                Text('Property Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 12),
-                Text('A very attractive property with high quality finishes, prime location, and excellent amenities. Tap the contact button below to get in touch with the owner.'),
+                _detailRow('Contact Number', contactNumber),
                 SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800], minimumSize: Size(double.infinity, 50)),
-                  child: Text('Contact Owner'),
+                  onPressed: () => _showContactDialog(context, contactNumber),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[800],
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 50),
+                  ),
+                  child: Text('Contact Owner', style: TextStyle(color: Colors.white)),
                 )
               ],
             ),
           )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showContactDialog(BuildContext context, String contactNumber) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Contact Number'),
+        content: Text(contactNumber, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text('Close')),
+          if (contactNumber != 'Not shown')
+            ElevatedButton(
+              onPressed: () async {
+                final uri = Uri(scheme: 'tel', path: contactNumber);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                }
+              },
+              child: Text('Call'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[800])),
+          SizedBox(height: 4),
+          Text(value, style: TextStyle(fontSize: 16)),
         ],
       ),
     );

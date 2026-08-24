@@ -9,12 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:livesmart/main.dart';
+import 'package:livesmart/data/property_data.dart';
 
 void main() {
   testWidgets('LiveSmart app loads smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(LiveSmartApp());
 
     expect(find.text('LiveSmart'), findsWidgets);
-    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('Get Started'), findsOneWidget);
+  });
+
+  test('property dataset contains 420 rows', () {
+    expect(PropertyData.all, hasLength(420));
   });
 }
