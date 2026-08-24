@@ -6,6 +6,8 @@
 	<string>LiveSmart uses the microphone to search for properties by voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>LiveSmart converts your voice into a property search.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>LiveSmart lets you choose a profile photo from your library.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
