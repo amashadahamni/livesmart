@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:url_launcher/url_launcher.dart';
 import 'data/property_data.dart';
+import 'services/property_nlp.dart';
 
 const lightBlue = Color(0xff3d8df5);
 const paleBlue = Color(0xffe4efff);
@@ -1793,54 +1794,10 @@ class _AIChatScreenState extends State<AIChatScreen> {
   }
 
   Map<String, dynamic> _generateResponse(String query) {
-    final lower = query.toLowerCase();
-    final sampleProperties = [
-      {
-        'tag': 'House',
-        'location': 'Colombo 04, Colombo',
-        'title': 'Spacious Bungalow in Colombo 04',
-        'price': 'LKR 20,000,000',
-        'image': 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
-        'beds': '5',
-        'baths': '1',
-      },
-      {
-        'tag': 'Apartment',
-        'location': 'Colombo 05, Colombo',
-        'title': 'Modern 3-Bedroom Apartment',
-        'price': 'LKR 18,500,000',
-        'image': 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80',
-        'beds': '3',
-        'baths': '2',
-      },
-      {
-        'tag': 'Villa',
-        'location': 'Galle, South',
-        'title': 'Luxury Villa Retreat',
-        'price': 'LKR 42,000,000',
-        'image': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80',
-        'beds': '4',
-        'baths': '3',
-      },
-    ];
-
-    if (lower.contains('colombo') && lower.contains('3-bedroom')) {
-      return {
-        'message': 'I found 2 houses 3-bedroom in Colombo under LKR 50,000,000 matching your requirements.',
-        'properties': [sampleProperties[0], sampleProperties[1]],
-      };
-    }
-
-    if (lower.contains('villa') || lower.contains('luxury')) {
-      return {
-        'message': 'Here are some luxury properties that match your search.',
-        'properties': [sampleProperties[2]],
-      };
-    }
-
+    final result = PropertyNlp.answer(query, PropertyData.all);
     return {
-      'message': 'I found 3 properties matching your request. Tap any property to view details.',
-      'properties': sampleProperties,
+      'message': result.answer,
+      'properties': result.properties,
     };
   }
 
