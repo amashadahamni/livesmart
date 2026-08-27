@@ -35,7 +35,10 @@ Future<void> _saveAuthenticatedProfile(User user) async {
 }
 
 Future<UserCredential> _authenticateWithGoogle() async {
-  final googleUser = await GoogleSignIn().signIn();
+  final googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  await FirebaseAuth.instance.signOut();
+  await googleSignIn.signOut();
+  final googleUser = await googleSignIn.signIn();
   if (googleUser == null) {
     throw FirebaseAuthException(code: 'sign-in-cancelled', message: 'Google sign-in was cancelled.');
   }
@@ -316,8 +319,10 @@ class _LoginScreenState extends State<LoginScreen> {
       await _saveAuthenticatedProfile(credential.user!);
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => MainApp()), (route) => false);
+    } on FirebaseAuthException catch (error) {
+      if (mounted) _showMessage(error.message ?? 'Google sign-in could not be completed.');
     } catch (error) {
-      if (mounted) _showMessage('Google sign-in could not be completed. Check Firebase Google sign-in setup.');
+      if (mounted) _showMessage('Google sign-in could not be completed. Check that Google is enabled in Firebase.');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -427,8 +432,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       await _saveAuthenticatedProfile(credential.user!);
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => MainApp()), (route) => false);
+    } on FirebaseAuthException catch (error) {
+      if (mounted) _showMessage(error.message ?? 'Google sign-up could not be completed.');
     } catch (error) {
-      if (mounted) _showMessage('Google sign-up could not be completed. Check Firebase Google sign-in setup.');
+      if (mounted) _showMessage('Google sign-up could not be completed. Check that Google is enabled in Firebase.');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
