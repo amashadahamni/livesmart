@@ -737,10 +737,10 @@ class DashboardScreen extends StatelessWidget {
             ),
             SizedBox(height: 22),
             Row(children: [
+              categoryItem(context, Icons.terrain, 'Land'),
               categoryItem(context, Icons.home, 'House'),
               categoryItem(context, Icons.apartment, 'Apartment'),
               categoryItem(context, Icons.business, 'Commercial'),
-              categoryItem(context, Icons.terrain, 'Land'),
             ]),
             SizedBox(height: 26),
             sectionTitle(context, 'Popular Locations'),

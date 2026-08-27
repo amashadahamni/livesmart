@@ -58,14 +58,7 @@ class PropertyData {
   }
 
   static List<Map<String, String>> get all {
-    return [
-      ...verifiedListings,
-      ...workbookListings,
-      for (var locationIndex = 0; locationIndex < locations.length; locationIndex++)
-        for (var propertyIndex = 0; propertyIndex < 15; propertyIndex++)
-          if (locationIndex != 0 || propertyIndex >= 9)
-            _row(locationIndex, propertyIndex),
-    ];
+    return workbookListings;
   }
 
   static final List<Map<String, String>> workbookListings = _workbookRows

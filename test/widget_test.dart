@@ -19,8 +19,13 @@ void main() {
     expect(find.byType(Image), findsOneWidget);
   });
 
-  test('property dataset contains imported workbook listings', () {
-    expect(PropertyData.all, hasLength(486));
+  test('property dataset contains only LiveSmartFinalExcel22 listings', () {
+    expect(PropertyData.all, hasLength(PropertyData.workbookListings.length));
+    expect(PropertyData.all, everyElement(
+      predicate<Map<String, String>>(
+        (property) => property['sourceUrl'] == 'Uploaded workbook: LiveSmartFinalExcel22.xlsx',
+      ),
+    ));
   });
 
   test('property NLP responds to a greeting', () {
