@@ -27,7 +27,7 @@ class PropertyNlp {
 
     if (_isGreeting(query)) {
       final hour = (now ?? DateTime.now()).hour;
-      final greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+      final greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good night';
       return PropertyQueryResult(
         answer: '$greeting! How can I help you find a property today?',
         properties: const [],
@@ -97,12 +97,12 @@ class PropertyNlp {
 
   static bool _asksAboutApp(String query) => query.contains('livesmart app') || query.contains('what can you do') || query.contains('how does this app work');
 
-  static bool _hasPropertyWords(String query) => RegExp(r'\b(property|properties|home|house|apartment|flat|land|plot|villa|commercial|office|rent|sale|buy)\b').hasMatch(query);
+  static bool _hasPropertyWords(String query) => RegExp(r'\b(property|properties|home|house|apartment|flat|land|plot|villa|commercial|office|space|rent|sale|buy)\b').hasMatch(query);
 
   static String? _categoryFor(String query) {
     if (RegExp(r'\b(apartments?|flats?|condos?)\b').hasMatch(query)) return 'Apartment';
     if (RegExp(r'\b(lands?|plots?)\b').hasMatch(query)) return 'Land';
-    if (RegExp(r'\b(commercial|office|offices|shops?)\b').hasMatch(query)) return 'Commercial';
+    if (RegExp(r'\b(commercial|office|offices|office\s+spaces?|shops?)\b').hasMatch(query)) return 'Commercial';
     if (RegExp(r'\b(houses?|homes?|villas?|bungalows?)\b').hasMatch(query)) return 'House';
     return null;
   }
@@ -136,6 +136,7 @@ class PropertyNlp {
 
   static String? _cityFor(String query, List<Map<String, String>> properties) {
     final cities = properties.map((property) => property['city'] ?? '').where((city) => city.isNotEmpty).toSet();
+    if (query.contains('colombo 1-15')) return 'colombo';
     final orderedCities = cities.toList()..sort((left, right) => right.length.compareTo(left.length));
     for (final city in orderedCities) {
       final normalized = _normalize(city);
@@ -189,5 +190,5 @@ class PropertyNlp {
 
   static String _displayCity(String city) => city.split(' ').map((word) => word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}').join(' ');
 
-  static String _normalize(String value) => value.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
+  static String _normalize(String value) => value.toLowerCase().replaceAll('-', ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
 }

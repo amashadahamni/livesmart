@@ -1,4 +1,14 @@
 import java.util.Properties
+import groovy.json.JsonSlurper
+
+fun googleServicesApiKey(file: File): String {
+    if (!file.exists()) return ""
+    val root = JsonSlurper().parse(file) as? Map<*, *> ?: return ""
+    val client = (root["client"] as? List<*>)?.firstOrNull() as? Map<*, *> ?: return ""
+    val keys = client["api_key"] as? List<*> ?: return ""
+    val key = keys.firstOrNull() as? Map<*, *> ?: return ""
+    return key["current_key"] as? String ?: ""
+}
 
 plugins {
     id("com.android.application")
@@ -31,7 +41,9 @@ android {
         if (localPropertiesFile.exists()) {
             localPropertiesFile.inputStream().use(localProperties::load)
         }
-        manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY", "")
+        val configuredMapsKey = localProperties.getProperty("MAPS_API_KEY")
+            ?: googleServicesApiKey(file("google-services.json"))
+        manifestPlaceholders["MAPS_API_KEY"] = configuredMapsKey
     }
 
     buildTypes {

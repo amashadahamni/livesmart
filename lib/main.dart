@@ -747,7 +747,19 @@ class DashboardScreen extends StatelessWidget {
             SizedBox(height: 12),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(children: ['Colombo 1-15', 'Rajagiriya', 'Galle', 'Kandy', 'Negombo']
+              child: Row(children: [
+                'Colombo 1-15',
+                'Galle',
+                'Kandy',
+                'Maharagama',
+                'Nugegoda',
+                'Moratuwa',
+                'Panadura',
+                'Nuwara-Eliya',
+                'Anuradhapura',
+                'Piliyandala',
+                'Rajagiriya',
+              ]
                   .map((location) => Padding(padding: EdgeInsets.only(right: 10), child: chipItem(context, location))).toList()),
             ),
             SizedBox(height: 26),
@@ -1932,7 +1944,11 @@ class _AIChatScreenState extends State<AIChatScreen> {
                                   BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
                                 ],
                               ),
-                              child: Icon(_isListening ? Icons.mic_off : Icons.mic, color: lightBlue, size: 27),
+                              child: Icon(
+                                _isListening ? Icons.mic : Icons.mic_off,
+                                color: _isListening ? Colors.green : Colors.red,
+                                size: 27,
+                              ),
                             ),
                           ),
                           SizedBox(width: 12),
@@ -2061,7 +2077,13 @@ class _AIChatScreenState extends State<AIChatScreen> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              child: Image.network(property['image']!, height: 180, width: double.infinity, fit: BoxFit.cover),
+              child: SizedBox(
+                height: 180,
+                width: double.infinity,
+                child: property['image']!.startsWith('lib/')
+                    ? Image.asset(property['image']!, fit: BoxFit.cover)
+                    : Image.network(property['image']!, fit: BoxFit.cover),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16),
@@ -2072,7 +2094,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _badge(property['tag']!, paleBlue),
-                      Icon(Icons.favorite_border, color: Colors.grey[600]),
+                      FavoriteButton(property: property),
                     ],
                   ),
                   SizedBox(height: 12),
@@ -3161,7 +3183,7 @@ class _MapScreenState extends State<MapScreen> {
     final categoryMatches = _category == 'All' || property['category'] == _category;
     final text = '${property['title']} ${property['city']} ${property['location']}'.toLowerCase();
     return categoryMatches && text.contains(_query.toLowerCase());
-  }).take(40).toList();
+  }).toList();
 
   LatLng _locationFor(Map<String, String> property) {
     final place = '${property['city']} ${property['location']}'.toLowerCase();
@@ -3178,13 +3200,20 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Set<Marker> _markers(List<Map<String, String>> properties) {
-    return properties.map((property) {
-      final selected = _selectedProperty?['id'] == property['id'];
+    final propertiesByCity = <String, Map<String, String>>{};
+    for (final property in properties) {
+      final city = (property['city'] ?? property['location'] ?? '').trim();
+      if (city.isNotEmpty) propertiesByCity.putIfAbsent(city, () => property);
+    }
+
+    return propertiesByCity.entries.map((entry) {
+      final city = entry.key;
+      final property = entry.value;
       return Marker(
-        markerId: MarkerId(property['id'] ?? property['title'] ?? ''),
+        markerId: MarkerId(city),
         position: _locationFor(property),
-        icon: BitmapDescriptor.defaultMarkerWithHue(selected ? BitmapDescriptor.hueRose : BitmapDescriptor.hueRed),
-        infoWindow: InfoWindow(title: property['title'], snippet: property['city']),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        infoWindow: InfoWindow(title: city, snippet: property['title']),
         onTap: () => _selectProperty(property),
       );
     }).toSet();
