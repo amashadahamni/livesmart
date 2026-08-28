@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import 'property_data_excel3.dart';
+
 class PropertyData {
   static const List<String> locations = [
     'Colombo 1-15',
@@ -58,7 +60,42 @@ class PropertyData {
   }
 
   static List<Map<String, String>> get all {
-    return workbookListings;
+    return excel3Listings;
+  }
+
+  static final List<Map<String, String>> excel3Listings = liveSmartFinalExcel3Rows
+      .map(_excel3Listing)
+      .toList(growable: false);
+
+  static Map<String, String> _excel3Listing(String row) {
+    final fields = row.split('|');
+    final category = fields[1];
+    final city = fields[2];
+    final status = fields[8];
+    final bedrooms = fields[9];
+    final bathrooms = fields[10];
+    return {
+      'id': 'EXCEL3-${fields[0]}',
+      'category': category,
+      'transactionType': status,
+      'city': city,
+      'area': fields[3],
+      'price': fields[4],
+      'bedrooms': bedrooms,
+      'bathrooms': bathrooms,
+      'specialFeatures': fields[11].isEmpty ? 'Not shown' : '${fields[11]} parking spaces',
+      'contactNumber': fields[6].isEmpty ? 'Not shown' : '+${fields[6]}',
+      'exactLocation': fields[5],
+      'streetName': fields[5],
+      'sourceUrl': 'Uploaded workbook: LiveSmartFinalExcel3 - Final.xlsx',
+      'title': '$category for $status in ${fields[5]}',
+      'image': 'lib/data/LiveSmartImages/${fields[7]}',
+      'beds': bedrooms.isEmpty ? '0' : bedrooms,
+      'baths': bathrooms.isEmpty ? '0' : bathrooms,
+      'tag': category,
+      'label': 'For $status',
+      'location': city,
+    };
   }
 
   static final List<Map<String, String>> workbookListings = _workbookRows
@@ -355,36 +392,4 @@ class PropertyData {
     },
   ];
 
-  static Map<String, String> _row(int locationIndex, int propertyIndex) {
-    final category = categories[(locationIndex + propertyIndex) % categories.length];
-    final transaction = propertyIndex.isEven ? 'Buy' : 'Rent';
-    final location = locations[locationIndex];
-    final bedrooms = category == 'House' || category == 'Apartment'
-        ? '${2 + ((locationIndex + propertyIndex) % 4)}'
-        : '';
-    final bathrooms = category == 'House' || category == 'Apartment'
-        ? '${1 + ((locationIndex + propertyIndex) % 3)}'
-        : '';
-
-    return {
-      'id': 'LPW-${locationIndex + 1}-${propertyIndex + 1}',
-      'category': category,
-      'transactionType': transaction,
-      'city': location,
-      'area': 'Data pending',
-      'price': 'Data pending',
-      'bedrooms': bedrooms,
-      'bathrooms': bathrooms,
-      'specialFeatures': 'Data pending',
-      'exactLocation': location,
-      'sourceUrl': 'Approved source URL pending',
-      'title': '$category in $location',
-      'image': 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80',
-      'beds': bedrooms.isEmpty ? '0' : bedrooms,
-      'baths': bathrooms.isEmpty ? '0' : bathrooms,
-      'tag': category,
-      'label': 'For $transaction',
-      'location': location,
-    };
-  }
 }
