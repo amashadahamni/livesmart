@@ -1,0 +1,5 @@
+LiveSmart GitHub Repository
+
+https://github.com/amashadahamni/livesmart
+
+The repository must be set to Public so the lecturer can access the source code.

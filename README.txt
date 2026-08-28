@@ -1,6 +1,15 @@
 LiveSmart - Project Run Instructions
 =====================================
 
+GitHub Repository
+-----------------
+The complete project source code is available here:
+
+    https://github.com/amashadahamni/livesmart
+
+The lecturer can open this link to view or download the project. The
+repository must be Public on GitHub for access without signing in.
+
 1. Project Overview
 -------------------
 LiveSmart is a Flutter property-search application for Sri Lankan properties.
